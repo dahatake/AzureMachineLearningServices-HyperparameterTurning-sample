@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 import keras
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras.optimizers import RMSprop
 from keras.callbacks import Callback
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
@@ -35,6 +35,7 @@ optimizer_types = {
 parser = argparse.ArgumentParser()
 parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
 parser.add_argument('--batch-size', type=int, dest='batch_size', default=50, help='mini batch size for training')
+parser.add_argument('--epoch', type=int, dest='epoch', default=20, help='epoch size for training')
 parser.add_argument('--first-layer-neurons', type=int, dest='n_hidden_1', default=100,
                     help='# of neurons in the first layer')
 parser.add_argument('--second-layer-neurons', type=int, dest='n_hidden_2', default=100,
@@ -42,6 +43,8 @@ parser.add_argument('--second-layer-neurons', type=int, dest='n_hidden_2', defau
 parser.add_argument('--learning-rate', type=float, dest='learning_rate', default=0.001, help='learning rate')
 parser.add_argument('--activation', type=str, dest='activation', default='relu', help='activation function')
 parser.add_argument('--optimizer', type=str, dest='optimizer', default='RMSprop', help='Optimzers to use for training. Defaults to RMSProp for initial training and SGD for subsequent.')
+parser.add_argument('--loss', type=str, dest='loss', default='categorical_crossentropy', help='loss function.')
+parser.add_argument('--dropout', type=float, dest='dropout', default=0.2, help='Drop Out rate')
 
 args = parser.parse_args()
 
@@ -61,11 +64,13 @@ n_inputs = 28 * 28
 n_h1 = args.n_hidden_1
 n_h2 = args.n_hidden_2
 n_outputs = 10
-n_epochs = 20
+n_epochs = args.epoch
 batch_size = args.batch_size
 learning_rate = args.learning_rate
 activation = args.activation
 optimizer = args.optimizer
+dropout = args.dropout
+loss = args.loss
 
 y_train = one_hot_encode(y_train, n_outputs)
 y_test = one_hot_encode(y_test, n_outputs)
@@ -75,14 +80,16 @@ print(X_train.shape, y_train.shape, X_test.shape, y_test.shape, sep='\n')
 model = Sequential()
 # first hidden layer
 model.add(Dense(n_h1, activation=activation, input_shape=(n_inputs,)))
+model.add(Dropout(dropout))
 # second hidden layer
 model.add(Dense(n_h2, activation=activation))
+model.add(Dropout(dropout))
 # output layer
 model.add(Dense(n_outputs, activation='softmax'))
 
 model.summary()
 
-model.compile(loss='categorical_crossentropy',
+model.compile(loss=loss,
               optimizer=optimizer_types[optimizer](learning_rate),
               metrics=['accuracy'])
 
