@@ -13,6 +13,7 @@ from keras.layers import Dense, Dropout
 from keras.optimizers import RMSprop
 from keras.callbacks import Callback
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
+from keras.utils import multi_gpu_model
 
 import tensorflow as tf
 
@@ -45,6 +46,7 @@ parser.add_argument('--activation', type=str, dest='activation', default='relu',
 parser.add_argument('--optimizer', type=str, dest='optimizer', default='RMSprop', help='Optimzers to use for training. Defaults to RMSProp for initial training and SGD for subsequent.')
 parser.add_argument('--loss', type=str, dest='loss', default='categorical_crossentropy', help='loss function.')
 parser.add_argument('--dropout', type=float, dest='dropout', default=0.2, help='Drop Out rate')
+parser.add_argument('--gpu', type=int, dest='gpu', default=1, help='The count of GPU')
 
 args = parser.parse_args()
 
@@ -71,6 +73,7 @@ activation = args.activation
 optimizer = args.optimizer
 dropout = args.dropout
 loss = args.loss
+gpu = args.gpu
 
 y_train = one_hot_encode(y_train, n_outputs)
 y_test = one_hot_encode(y_test, n_outputs)
@@ -89,6 +92,11 @@ model.add(Dense(n_outputs, activation='softmax'))
 
 model.summary()
 
+# optimize multi_gpu
+if gpu > 1:
+	model = multi_gpu_model(model, gpus=gpu)
+	batch_size = batch_size * gpu
+
 model.compile(loss=loss,
               optimizer=optimizer_types[optimizer](learning_rate),
               metrics=['accuracy'])
@@ -102,7 +110,6 @@ class LogRunMetrics(Callback):
         # log a value repeated which creates a list
         run.log('Loss', log['loss'])
         run.log('Accuracy', log['acc'])
-
 
 history = model.fit(X_train, y_train,
                     batch_size=batch_size,
