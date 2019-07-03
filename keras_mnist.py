@@ -47,8 +47,14 @@ parser.add_argument('--optimizer', type=str, dest='optimizer', default='RMSprop'
 parser.add_argument('--loss', type=str, dest='loss', default='categorical_crossentropy', help='loss function.')
 parser.add_argument('--dropout', type=float, dest='dropout', default=0.2, help='Drop Out rate')
 parser.add_argument('--gpu', type=int, dest='gpu', default=1, help='The count of GPU')
+parser.add_argument('--auto_mixed_precision', type=int, dest='auto_mixed_precision', default=1, help='Enable Automatic Mixed Precision to use Tensor Core')
+
 
 args = parser.parse_args()
+
+# Control Automatic Mixed Precision to use NVIDIA Tensor Core
+# https://docs.nvidia.com/deeplearning/frameworks/tensorflow-user-guide/index.html
+os.environ['TF_ENABLE_AUTO_MIXED_PRECISION'] = str(args.auto_mixed_precision)
 
 data_folder = args.data_folder
 
