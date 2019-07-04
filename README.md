@@ -31,15 +31,19 @@ Azure Machine Learning services の  Hyperparameters Turning を使ったサン�
 
 # 手順
 
-0. Azure の Subscription を作成
+1. Azure の Subscription を作成
 
-1. Azure Notebook にログイン
+Azure Machine Learning services を利用するために必要です。
+
+無料トライアル: https://azure.microsoft.com/ja-jp/free/
+
+2. Azure Notebook にログイン
 
 こちらです。
 
 https://notebooks.azure.com/
 
-2. Azure Notebook で Github Clone
+3. Azure Notebook で Github Clone
 
 手順はこちら。
 
